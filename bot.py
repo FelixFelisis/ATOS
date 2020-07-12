@@ -427,8 +427,11 @@ async def reload_tournament():
         log.info("Missed inscriptions were also taken care of.")
 
 
-### Annonce l'inscription
-async def annonce_inscription():
+### Annonce et lance les inscriptions
+@bot.command(name='inscriptions')
+@commands.check(is_owner_or_to)
+@commands.check(tournament_is_pending)
+async def annonce_inscription(ctx):
     with open(tournoi_path, 'r+') as f: tournoi = json.load(f, object_hook=dateparser)
     with open(gamelist_path, 'r+') as f: gamelist = yaml.full_load(f)
 
@@ -708,6 +711,10 @@ async def participants_management(ctx):
             await inscrire(ctx.author)
             await ctx.message.add_reaction("✅")
 
+        elif ctx.channel.id == inscriptions_vip_channel_id and ctx.author.id not in participants and len(participants) < tournoi['limite']:
+            await inscrire(ctx.author)
+            await ctx.message.add_reaction("✅")
+
         else:
             await ctx.message.add_reaction("🚫")
 
@@ -759,7 +766,7 @@ async def flipcoin(ctx):
 ### Ajout manuel
 @bot.command(name='add')
 @commands.check(is_owner_or_to)
-@commands.check(inscriptions_still_open)
+@commands.check(tournament_is_pending)
 async def add_inscrit(ctx):
     for member in ctx.message.mentions:
         await inscrire(member)
