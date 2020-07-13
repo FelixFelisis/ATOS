@@ -1,13 +1,13 @@
-Game 1:
-  ruleset:
-  role:
+Super Smash Bros. Ultimate:
+  ruleset: 732306047544590447
+  role: 732305737950429355
 #  role_1v1:
-  icon:
+  icon: <:salt:599341034853498919>
 #  icon_1v1:
 #  ranking:
 #    league_name:
 #    league_id:
-  ban_instruction:
+  ban_instruction: 2-3-1
   starters:
     - foo
 #  counterpicks:

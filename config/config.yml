@@ -16,33 +16,33 @@ paths: # can be left as default values
   preferences: config/preferences.yml
 
 discord:
-  secret:
-  guild:
-  prefix:
+  secret: NzMyMjE5NDk2MTE0NDIxNzgx.Xwxi7A.KjZhZVSOCzacuQpei9aF2A31gtw
+  guild: 732220783090204694
+  prefix: '!'
   channels:
-    blabla:
-    annonce:
-    check_in:
-    inscriptions:
-    inscriptionsvip:
-    scores:
-    stream:
-    queue:
-    tournoi:
-    deroulement:
-    faq:
-    resultats:
-    roles:
-    to:
+    blabla: 732220783853830156
+    annonce: 732221491197771853
+    check_in: 732221544667021374
+    inscriptions: 732221521615126548
+    inscriptionsvip: 732222044405498006
+    scores: 732222210504130590
+    stream: 732222352628383754
+    queue: 732222380688015401
+    tournoi: 732224254942248982
+    deroulement: 732224277839085689
+    faq: 732224296654471200
+    resultats: 732224316267036722
+    roles: 732224335032614982
+    to: 732224349435723876
   categories:
-    tournoi:
+    tournoi: 732220783853830154
   roles:
-    challenger:
-    to:
-    streamer:
+    challenger: 732221587918684280
+    to: 732221655275012146
+    streamer: 732221704155168808
   emojis:
-    logo:
+    logo: 732223027877773333
 
 challonge:
-  user:
-  api_key:
+  user: Xyleff
+  api_key: iJBRaBZoaGY4H5xekuprbbOF4xvepsAvusLQG2AN

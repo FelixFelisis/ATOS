@@ -82,6 +82,7 @@ async def on_member_join(member):
 
 ### Récupérer informations du tournoi et initialiser tournoi.json
 async def init_tournament(url_or_id):
+    print("uuUuuUUuUUuUUuUuUuUu")
     with open(preferences_path, 'r+') as f: preferences = yaml.full_load(f)
     with open(gamelist_path, 'r+') as f: gamelist = yaml.full_load(f)
 
@@ -144,24 +145,21 @@ async def init_tournament(url_or_id):
     await bot.get_channel(scores_channel_id).set_permissions(challenger, read_messages=True, send_messages=False, add_reactions=False)
     await bot.get_channel(queue_channel_id).set_permissions(challenger, read_messages=True, send_messages=False, add_reactions=False)
 
-    await annonce_inscription()
-
     scheduler.add_job(start_check_in, id='start_check_in', run_date=tournoi["début_check-in"], replace_existing=True)
     scheduler.add_job(end_check_in, id='end_check_in', run_date=tournoi["fin_check-in"], replace_existing=True)
     scheduler.add_job(end_inscription, id='end_inscription', run_date=tournoi["fin_inscription"], replace_existing=True)
 
-    scheduler.add_job(dump_participants, 'interval', id='dump_participants', seconds=10, replace_existing=True)
+    init_compteur()
 
     await bot.change_presence(activity=discord.Game(tournoi['name']))
 
     await purge_channels()
 
-
 ### Ajouter un tournoi
 @bot.command(name='setup')
 @commands.check(is_owner_or_to)
 async def setup_tournament(ctx, arg):
-
+    print("ooOOoOooOoooOoOoOoOoo")
     if re.compile(r"^(https?\:\/\/)?(challonge.com)\/.+$").match(arg):
         await init_tournament(arg.replace("https://challonge.com/", ""))
     else:
@@ -432,6 +430,25 @@ async def reload_tournament():
 @commands.check(is_owner_or_to)
 @commands.check(tournament_is_pending)
 async def annonce_inscription(ctx):
+    scheduler.add_job(dump_participants, 'interval', id='dump_participants', seconds=10, replace_existing=True)
+
+    with open(tournoi_path, 'r+') as f: tournoi = json.load(f, object_hook=dateparser)
+    with open(gamelist_path, 'r+') as f: gamelist = yaml.full_load(f)
+
+    inscriptions_channel = bot.get_channel(inscriptions_channel_id)
+    inscriptions_role = inscriptions_channel.guild.get_role(gamelist[tournoi['game']]['role']) if tournoi["restrict_to_role"] else inscriptions_channel.guild.default_role
+
+    if tournoi['reaction_mode']:
+        await inscriptions_channel.set_permissions(inscriptions_role, read_messages=True, send_messages=False, add_reactions=False)
+    else:
+        await inscriptions_channel.set_permissions(inscriptions_role, read_messages=True, send_messages=True, add_reactions=False)
+        await inscriptions_channel.edit(slowmode_delay=60)
+
+    await bot.get_channel(annonce_channel_id).send(f"{server_logo} Inscriptions pour le **{tournoi['name']}** ouvertes dans <#{inscriptions_channel_id}> ! Consultez-y les messages épinglés. <@&{gamelist[tournoi['game']]['role']}>\n"
+                                                   f":calendar_spiral: Ce tournoi aura lieu le **{format_date(tournoi['début_tournoi'], format='full', locale=language)} à {format_time(tournoi['début_tournoi'], format='short', locale=language)}**.")
+
+### Initialise le compteur d'inscrits dans le salon d'inscriptions
+async def init_compteur():
     with open(tournoi_path, 'r+') as f: tournoi = json.load(f, object_hook=dateparser)
     with open(gamelist_path, 'r+') as f: gamelist = yaml.full_load(f)
 
@@ -448,7 +465,6 @@ async def annonce_inscription(ctx):
     )
     
     inscriptions_channel = bot.get_channel(inscriptions_channel_id)
-    inscriptions_role = inscriptions_channel.guild.get_role(gamelist[tournoi['game']]['role']) if tournoi["restrict_to_role"] else inscriptions_channel.guild.default_role
 
     await inscriptions_channel.purge(limit=None)
 
@@ -460,16 +476,6 @@ async def annonce_inscription(ctx):
         await annonce_msg.add_reaction("✅")
     
     await annonce_msg.pin()
-
-    if tournoi['reaction_mode']:
-        await inscriptions_channel.set_permissions(inscriptions_role, read_messages=True, send_messages=False, add_reactions=False)
-    else:
-        await inscriptions_channel.set_permissions(inscriptions_role, read_messages=True, send_messages=True, add_reactions=False)
-        await inscriptions_channel.edit(slowmode_delay=60)
-
-    await bot.get_channel(annonce_channel_id).send(f"{server_logo} Inscriptions pour le **{tournoi['name']}** ouvertes dans <#{inscriptions_channel_id}> ! Consultez-y les messages épinglés. <@&{gamelist[tournoi['game']]['role']}>\n"
-                                                   f":calendar_spiral: Ce tournoi aura lieu le **{format_date(tournoi['début_tournoi'], format='full', locale=language)} à {format_time(tournoi['début_tournoi'], format='short', locale=language)}**.")
-
 
 ### Inscription
 async def inscrire(member):
@@ -770,6 +776,7 @@ async def flipcoin(ctx):
 async def add_inscrit(ctx):
     for member in ctx.message.mentions:
         await inscrire(member)
+    dump_participants()
     await ctx.message.add_reaction("✅")
 
 
@@ -780,6 +787,7 @@ async def add_inscrit(ctx):
 async def remove_inscrit(ctx):
     for member in ctx.message.mentions:
         await desinscrire(member)
+    dump_participants()
     await ctx.message.add_reaction("✅")
 
 
