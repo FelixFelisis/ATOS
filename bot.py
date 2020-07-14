@@ -82,7 +82,7 @@ async def on_member_join(member):
 
 ### Récupérer informations du tournoi et initialiser tournoi.json
 async def init_tournament(url_or_id):
-    print("uuUuuUUuUUuUUuUuUuUu")
+
     with open(preferences_path, 'r+') as f: preferences = yaml.full_load(f)
     with open(gamelist_path, 'r+') as f: gamelist = yaml.full_load(f)
 
@@ -149,7 +149,7 @@ async def init_tournament(url_or_id):
     scheduler.add_job(end_check_in, id='end_check_in', run_date=tournoi["fin_check-in"], replace_existing=True)
     scheduler.add_job(end_inscription, id='end_inscription', run_date=tournoi["fin_inscription"], replace_existing=True)
 
-    init_compteur()
+    await init_compteur()
 
     await bot.change_presence(activity=discord.Game(tournoi['name']))
 
@@ -159,7 +159,7 @@ async def init_tournament(url_or_id):
 @bot.command(name='setup')
 @commands.check(is_owner_or_to)
 async def setup_tournament(ctx, arg):
-    print("ooOOoOooOoooOoOoOoOoo")
+
     if re.compile(r"^(https?\:\/\/)?(challonge.com)\/.+$").match(arg):
         await init_tournament(arg.replace("https://challonge.com/", ""))
     else:
@@ -463,7 +463,7 @@ async def init_compteur():
         f"Vous pouvez vous inscrire/désinscrire {'en ajoutant/retirant la réaction ✅ à ce message' if tournoi['reaction_mode'] else f'avec les commandes `{bot_prefix}in`/`{bot_prefix}out`'}.\n"
         f"*Note : votre **pseudonyme {'sur ce serveur' if tournoi['use_guild_name'] else 'Discord général'}** au moment de l'inscription sera celui utilisé dans le bracket.*"
     )
-    
+
     inscriptions_channel = bot.get_channel(inscriptions_channel_id)
 
     await inscriptions_channel.purge(limit=None)
@@ -483,7 +483,6 @@ async def inscrire(member):
     with open(tournoi_path, 'r+') as f: tournoi = json.load(f, object_hook=dateparser)
 
     if (member.id not in participants) and (len(participants) < tournoi['limite']):
-
         participants[member.id] = {
             "display_name": member.display_name if tournoi['use_guild_name'] else str(member),
             "checked_in": datetime.datetime.now() > tournoi["début_check-in"]
@@ -503,9 +502,7 @@ async def inscrire(member):
                 return
 
         await member.add_roles(member.guild.get_role(challenger_id))
-
         await update_annonce()
-
         try:
             msg = f"Tu t'es inscrit(e) avec succès pour le tournoi **{tournoi['name']}**."
             if datetime.datetime.now() > tournoi["début_check-in"]:
@@ -515,7 +512,6 @@ async def inscrire(member):
             pass
 
     elif tournoi["reaction_mode"] and len(participants) >= tournoi['limite']:
-
         try:
             await member.send(f"Il n'y a malheureusement plus de place pour le tournoi **{tournoi['name']}**. "
                               f"Retente ta chance plus tard, par exemple à la fin du check-in pour remplacer les absents !")
@@ -567,7 +563,6 @@ async def desinscrire(member):
 async def update_annonce():
 
     with open(tournoi_path, 'r+') as f: tournoi = json.load(f, object_hook=dateparser)
-
     old_annonce = await bot.get_channel(inscriptions_channel_id).fetch_message(tournoi["annonce_id"])
     new_annonce = re.sub(r'[0-9]{1,3}\/', str(len(participants)) + '/', old_annonce.content)
     await old_annonce.edit(content=new_annonce)
@@ -700,7 +695,7 @@ async def participants_management(ctx):
 
     if ctx.invoked_with == 'out':
 
-        if ctx.channel.id in [check_in_channel_id, inscriptions_channel_id] and ctx.author.id in participants:
+        if ctx.channel.id in [check_in_channel_id, inscriptions_channel_id, inscriptions_vip_channel_id] and ctx.author.id in participants:
             await desinscrire(ctx.author)
             await ctx.message.add_reaction("✅")
 

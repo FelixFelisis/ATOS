@@ -16,7 +16,7 @@ paths: # can be left as default values
   preferences: config/preferences.yml
 
 discord:
-  secret: NzMyMjE5NDk2MTE0NDIxNzgx.Xwxi7A.KjZhZVSOCzacuQpei9aF2A31gtw
+  secret: 
   guild: 732220783090204694
   prefix: '!'
   channels:
@@ -41,8 +41,8 @@ discord:
     to: 732221655275012146
     streamer: 732221704155168808
   emojis:
-    logo: 732223027877773333
+    logo: 💯
 
 challonge:
   user: Xyleff
-  api_key: iJBRaBZoaGY4H5xekuprbbOF4xvepsAvusLQG2AN
+  api_key: 
