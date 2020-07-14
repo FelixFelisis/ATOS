@@ -445,6 +445,8 @@ async def annonce_inscription(ctx):
         await inscriptions_channel.set_permissions(inscriptions_role, read_messages=True, send_messages=True, add_reactions=False)
         await inscriptions_channel.edit(slowmode_delay=60)
 
+    await ctx.message.add_reaction("✅")
+
     await bot.get_channel(annonce_channel_id).send(f"{server_logo} Inscriptions pour le **{tournoi['name']}** ouvertes dans <#{inscriptions_channel_id}> ! Consultez-y les messages épinglés. <@&{gamelist[tournoi['game']]['role']}>\n"
                                                    f":calendar_spiral: Ce tournoi aura lieu le **{format_date(tournoi['début_tournoi'], format='full', locale=language)} à {format_time(tournoi['début_tournoi'], format='short', locale=language)}**.")
 
